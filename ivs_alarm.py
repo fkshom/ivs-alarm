@@ -21,7 +21,8 @@ def get_mails(server, user, password):
         for i in range(num):
             # メールを受信
             content = "\r\n".join(pop3.retr(1+i)[1])
-            yield content
+            result = yield content
+            pop3.dele(1+i)
     #except poplib.error_proto as e:
     #    print("POP3 Error:", e)
     #    
