@@ -1,0 +1,13 @@
+{
+    "global": {
+        "new_to_address": "test@example.com"
+    },
+    "smtp": {
+        "server": "smtp.example.com"
+    },
+    "pop3": {
+        "server": "pop3.example.com",
+        "user": "username",
+        "password": "pass"
+    }
+}
