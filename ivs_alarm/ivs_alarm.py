@@ -75,9 +75,6 @@ def main():
                 # 初めての送信であればSMTPサーバに接続
                 smtp = smtp or smtplib.SMTP(smtp_server, 25)
 
-                #if i == 2:
-                #    raise Exception("smtp error!")
-
                 for new_mail in new_mails:
                     print('sendmail')
                     # メールを送信
