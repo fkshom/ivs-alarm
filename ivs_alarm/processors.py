@@ -37,8 +37,8 @@ def split_body_by_event(mails):
         logger.debug('original mailbody: ')
         logger.debug(mailbody)
 
-        sep = "SEPARATOR\r\n"
-        events = [e+sep for e in mailbody.split(sep) if e]
+        sep = "\nend of line"
+        events = [e+sep for e in mailbody.strip().split(sep) if e]
 
         for event in events:
             logger.debug('event:')

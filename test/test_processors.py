@@ -3,19 +3,15 @@ from unittest import mock
 from logging import basicConfig, getLogger, DEBUG
 import ivs_alarm.processors
 from email.mime.text import MIMEText
+from email import message_from_string, message_from_file
 
 basicConfig(level=DEBUG, format="%(levelname)-5s - %(filename)s(L%(lineno) 3d) - %(name)s - %(message)s")
 
 class TestProcessors_proc_nothing(unittest.TestCase):
     def setUp(self):
         self.mails = []
-
-        msg = MIMEText('This is mail body')
-        msg['To'] = 'to@example.com'
-        msg['Cc'] = 'cc@example.com'
-        msg['Subject'] = 'Subject'
-        msg['From'] = 'from@example.com'
-        self.mails.append(msg)
+        with open('test/fixtures/have_one_event.eml') as f:
+            self.mails.append(message_from_file(f))
 
     def tearDown(self):
         pass
@@ -35,12 +31,8 @@ class TestProcessors_change_to_address(unittest.TestCase):
     def setUp(self):
         self.mails = []
 
-        msg = MIMEText('This is mail body')
-        msg['To'] = 'to@example.com'
-        msg['Cc'] = 'cc@example.com'
-        msg['Subject'] = 'Subject'
-        msg['From'] = 'from@example.com'
-        self.mails.append(msg)
+        with open('test/fixtures/have_one_event.eml') as f:
+            self.mails.append(message_from_file(f))
 
         mock_get_config = mock.patch('ivs_alarm.processors.get_config')
         self.mock_get_config = mock_get_config.start()
@@ -68,12 +60,8 @@ class TestProcessors_split_body_by_event(unittest.TestCase):
     def setUp(self):
         self.mails = []
 
-        msg = MIMEText("event1\r\nSEPARATOR\r\nevent2\r\nSEPARATOR\r\n")
-        msg['To'] = 'to@example.com'
-        msg['Cc'] = 'cc@example.com'
-        msg['Subject'] = 'Subject'
-        msg['From'] = 'from@example.com'
-        self.mails.append(msg)
+        with open('test/fixtures/have_many_events.eml') as f:
+            self.mails.append(message_from_file(f))
 
         mock_get_config = mock.patch('ivs_alarm.processors.get_config')
         self.mock_get_config = mock_get_config.start()
@@ -95,28 +83,20 @@ class TestProcessors_split_body_by_event(unittest.TestCase):
         self.assertEqual(len(new_mails), 2)
         self.assertEqual(new_mails[0]['To'], 'to@example.com')
         self.assertEqual(new_mails[0]['Cc'], 'cc@example.com')
-        self.assertEqual(new_mails[0].get_payload(), "event1\r\nSEPARATOR\r\n")
+        self.assertIn("event1", new_mails[0].get_payload())
         self.assertEqual(new_mails[1]['To'], 'to@example.com')
         self.assertEqual(new_mails[1]['Cc'], 'cc@example.com')
-        self.assertEqual(new_mails[1].get_payload(), "event2\r\nSEPARATOR\r\n")
+        self.assertIn("event2", new_mails[1].get_payload())
 
 class TestProcessors_ignore_mail(unittest.TestCase):
     def setUp(self):
         self.mails = []
 
-        msg = MIMEText('This is mail body to ignore')
-        msg['To'] = 'to@example.com'
-        msg['Cc'] = 'cc@example.com'
-        msg['Subject'] = 'Subject'
-        msg['From'] = 'from@example.com'
-        self.mails.append(msg)
+        with open('test/fixtures/have_one_event_to_ignore.eml') as f:
+            self.mails.append(message_from_file(f))
 
-        msg = MIMEText('This is mail body')
-        msg['To'] = 'to@example.com'
-        msg['Cc'] = 'cc@example.com'
-        msg['Subject'] = 'Subject'
-        msg['From'] = 'from@example.com'
-        self.mails.append(msg)
+        with open('test/fixtures/have_one_event.eml') as f:
+            self.mails.append(message_from_file(f))
 
         mock_get_config = mock.patch('ivs_alarm.processors.get_config')
         self.mock_get_config = mock_get_config.start()
@@ -130,7 +110,7 @@ class TestProcessors_ignore_mail(unittest.TestCase):
         # 準備
         self.mock_get_config.return_value = {
             "ignore":{
-                "1": ["dummy pattern", "body to ignore"],
+                "1": ["dummy pattern", "event to ignore"],
                 "2": ["dummy pattern"],
             }
         }
@@ -142,4 +122,4 @@ class TestProcessors_ignore_mail(unittest.TestCase):
         self.assertEqual(len(new_mails), 1)
         self.assertEqual(new_mails[0]['To'], 'to@example.com')
         self.assertEqual(new_mails[0]['Cc'], 'cc@example.com')
-        self.assertEqual(new_mails[0].get_payload(), 'This is mail body')
+        self.assertIn('event1', new_mails[0].get_payload())

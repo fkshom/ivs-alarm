@@ -1,0 +1,16 @@
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Subject: Alarm Mail
+From: from@example.com
+To: to@example.com
+Cc: cc@example.com
+Date: Thu, 04 Oct 2018 06:36:27 +0000 (UTC)
+
+
+Summary
+---------------------------------
+event1
+---------------------------------
+end of line
+
