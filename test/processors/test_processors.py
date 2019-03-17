@@ -64,6 +64,42 @@ class TestProcessors_change_to_address(unittest.TestCase):
         self.assertEqual(new_mails[0]['To'], 'new_to@example.com')
         self.assertEqual(new_mails[0]['Cc'], None)
 
+class TestProcessors_split_body_by_event(unittest.TestCase):
+    def setUp(self):
+        self.mails = []
+
+        msg = MIMEText("event1\r\nSEPARATOR\r\nevent2\r\nSEPARATOR\r\n")
+        msg['To'] = 'to@example.com'
+        msg['Cc'] = 'cc@example.com'
+        msg['Subject'] = 'Subject'
+        msg['From'] = 'from@example.com'
+        self.mails.append(msg)
+
+        mock_get_config = mock.patch('ivs_alarm.processors.get_config')
+        self.mock_get_config = mock_get_config.start()
+        self.addCleanup(mock_get_config.stop)
+
+    def tearDown(self):
+        pass
+
+    def test_normal(self):
+
+        # 準備
+        self.mock_get_config.return_value = {
+        }
+        
+        # テスト
+        new_mails = ivs_alarm.processors.split_body_by_event(self.mails)
+
+        # 結果確認
+        self.assertEqual(len(new_mails), 2)
+        self.assertEqual(new_mails[0]['To'], 'to@example.com')
+        self.assertEqual(new_mails[0]['Cc'], 'cc@example.com')
+        self.assertEqual(new_mails[0].get_payload(), "event1\r\nSEPARATOR\r\n")
+        self.assertEqual(new_mails[1]['To'], 'to@example.com')
+        self.assertEqual(new_mails[1]['Cc'], 'cc@example.com')
+        self.assertEqual(new_mails[1].get_payload(), "event2\r\nSEPARATOR\r\n")
+
 class TestProcessors_ignore_mail(unittest.TestCase):
     def setUp(self):
         self.mails = []

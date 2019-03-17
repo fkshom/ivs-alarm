@@ -26,6 +26,30 @@ def change_to_address(mails):
 
     return new_mails
 
+def split_body_by_event(mails):
+    logger.debug('function "split_body_by_event" called')
+
+    config = get_config()
+    new_mails = []
+    import copy
+    for mail in mails:
+        mailbody = mail.get_payload()
+        logger.debug('original mailbody: ')
+        logger.debug(mailbody)
+
+        sep = "SEPARATOR\r\n"
+        events = [e+sep for e in mailbody.split(sep) if e]
+
+        for event in events:
+            logger.debug('event:')
+            logger.debug(event)
+            new_mail = copy.deepcopy(mail)
+            new_mail.set_payload(event)
+            new_mails.append(new_mail)
+
+    return new_mails
+        
+
 def ignore_mail(mails):
     logger.debug('function "ignore_mail" called')
 
