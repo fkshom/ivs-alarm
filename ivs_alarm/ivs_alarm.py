@@ -4,11 +4,14 @@ import email
 import smtplib
 import json
 import socket
+from logging import basicConfig, getLogger, DEBUG
 from .config import get_config
 from .processors import proc_nothing
 from .processors import change_to_address
 
 from contextlib import contextmanager
+
+logger = getLogger(__name__)
 
 @contextmanager
 def pop3_retr_and_dele(pop3, num):
@@ -16,16 +19,16 @@ def pop3_retr_and_dele(pop3, num):
         content = f"retr content {num}"
         content = pop3.retr(num)[1]
         yield content
-        print(f"dele {num}")
+        logger.info(f"dele {num}")
         pop3.dele(num)
     # except poplib.error_proto as err:
     #     print("poplib.error_proto")
     #     print(err)
     except (Exception, RuntimeError, TypeError, NameError) as err:
-        print("exception")
-        print(err)
+        logger.error("exception")
+        logger.error(err)
     finally:
-        print("finalize")
+        logger.debug("finalize")
 
 def process_mail(content):
 
@@ -67,25 +70,25 @@ def main():
         mailcnt, _ = pop3.pass_(pop3_pass)
 
         for i in range(1, mailcnt+1):
-            print(f"mail num {i}")
+            logger.info(f"mail num {i}")
             with pop3_retr_and_dele(pop3, i) as lines:
                 content = "\r\n".join(lines)
                 #print(content)
 
                 new_mails = process_mail(content)
-                print(new_mails)
+                logger.info(new_mails)
 
                 # 初めての送信であればSMTPサーバに接続
                 smtp = smtp or smtplib.SMTP(smtp_server, 25)
 
                 for new_mail in new_mails:
-                    print('sendmail')
+                    logger.info('sendmail')
                     # メールを送信
                     smtp.send_message(new_mail)
 
 
     except socket.gaierror as err:
-        print(err)
+        logger.error(err)
 
     finally:
         if pop3 is not None:

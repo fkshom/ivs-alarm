@@ -1,7 +1,10 @@
 import unittest
 from unittest import mock
+from logging import basicConfig, getLogger, DEBUG
 import ivs_alarm.ivs_alarm
 import poplib
+
+basicConfig(level=DEBUG, format="%(levelname)-5s - %(filename)s(L%(lineno) 3d) - %(name)s - %(message)s")
 
 class TestMain(unittest.TestCase):
     def setUp(self):

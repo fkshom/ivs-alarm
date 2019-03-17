@@ -4,7 +4,7 @@ from logging import basicConfig, getLogger, DEBUG
 import ivs_alarm.processors
 from email.mime.text import MIMEText
 
-basicConfig(level=DEBUG)
+basicConfig(level=DEBUG, format="%(levelname)-5s - %(filename)s(L%(lineno) 3d) - %(name)s - %(message)s")
 
 class TestProcessors_proc_nothing(unittest.TestCase):
     def setUp(self):
