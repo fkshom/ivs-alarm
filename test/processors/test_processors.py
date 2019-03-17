@@ -1,8 +1,10 @@
 import unittest
 from unittest import mock
+from logging import basicConfig, getLogger, DEBUG
 import ivs_alarm.processors
-import email
 from email.mime.text import MIMEText
+
+basicConfig(level=DEBUG)
 
 class TestProcessors_proc_nothing(unittest.TestCase):
     def setUp(self):
