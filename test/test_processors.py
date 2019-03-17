@@ -3,7 +3,7 @@ from unittest import mock
 from logging import basicConfig, getLogger, DEBUG
 import ivs_alarm.processors
 from email.mime.text import MIMEText
-from email import message_from_string, message_from_file
+from email import message_from_file
 
 basicConfig(level=DEBUG, format="%(levelname)-5s - %(filename)s(L%(lineno) 3d) - %(name)s - %(message)s")
 
