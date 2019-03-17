@@ -26,15 +26,6 @@ def change_to_address(mails):
 
     return new_mails
 
-def select_mail(mails):
-    logger.debug('function "select_mail" called')
-
-    config = get_config()
-    new_mails = []
-    for mail in mails:
-        pass
-
-
 def ignore_mail(mails):
     logger.debug('function "ignore_mail" called')
 

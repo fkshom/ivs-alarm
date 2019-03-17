@@ -64,7 +64,6 @@ class TestProcessors_change_to_address(unittest.TestCase):
         self.assertEqual(new_mails[0]['To'], 'new_to@example.com')
         self.assertEqual(new_mails[0]['Cc'], None)
 
-
 class TestProcessors_ignore_mail(unittest.TestCase):
     def setUp(self):
         self.mails = []
