@@ -88,6 +88,62 @@ class TestProcessors_split_body_by_event(unittest.TestCase):
         self.assertEqual(new_mails[1]['Cc'], 'cc@example.com')
         self.assertIn("event2", new_mails[1].get_payload())
 
+class TestProcessors_add_tag_to_subject(unittest.TestCase):
+    def setUp(self):
+        self.mails = []
+
+        with open('test/fixtures/have_one_event.eml') as f:
+            self.mails.append(message_from_file(f))
+
+        with open('test/fixtures/have_one_event_for_default_tag.eml') as f:
+            self.mails.append(message_from_file(f))
+
+        mock_get_config = mock.patch('ivs_alarm.processors.get_config')
+        self.mock_get_config = mock_get_config.start()
+        self.addCleanup(mock_get_config.stop)
+
+    def tearDown(self):
+        pass
+
+    def test_normal(self):
+
+        # 準備
+        self.mock_get_config.return_value = {
+            "add_tag_to_subject":[
+                {
+                    "name": "first tag rule",
+                    "condition": "event1",
+                    "prepend_tag": "[PREPENDTAG]",
+                    "append_tag": "[APPENDTAG]"
+                },
+                {
+                    "name": "default tag rule",
+                    "condition": ".*",
+                    "prepend_tag": "[DEFAULT]",
+                    "append_tag": "[DEFAULT]"
+                }                    
+            ]
+        }
+        
+        # テスト
+        new_mails = ivs_alarm.processors.add_tag_to_subject(self.mails)
+
+        # 結果確認
+        self.assertEqual(len(new_mails), 2)
+        self.assertEqual(new_mails[0]['To'], 'to@example.com')
+        self.assertEqual(new_mails[0]['Cc'], 'cc@example.com')
+        self.assertIn('[PREPENDTAG]', new_mails[0]['Subject'])
+        self.assertIn('[APPENDTAG]', new_mails[0]['Subject'])
+        self.assertNotIn('[DEFAULT]', new_mails[0]['Subject'])
+
+        self.assertEqual(new_mails[1]['To'], 'to@example.com')
+        self.assertEqual(new_mails[1]['Cc'], 'cc@example.com')
+        self.assertNotIn('[PREPENDTAG]', new_mails[1]['Subject'])
+        self.assertNotIn('[APPENDTAG]', new_mails[1]['Subject'])
+        self.assertIn('[DEFAULT]', new_mails[1]['Subject'])
+
+
+
 class TestProcessors_ignore_mail(unittest.TestCase):
     def setUp(self):
         self.mails = []

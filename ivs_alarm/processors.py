@@ -49,6 +49,28 @@ def split_body_by_event(mails):
 
     return new_mails
         
+def add_tag_to_subject(mails):
+    logger.debug('function "add_tag_to_subject" called')
+
+    config = get_config()
+    tag_items = config['add_tag_to_subject']
+    new_mails = []
+
+    for mail in mails:
+        mailbody = mail.get_payload()
+        logger.debug('mailbody:')
+        logger.debug(mailbody)
+        for item in tag_items:
+            logger.debug("entry name: " + item['name'])
+
+            if re.search(item['condition'], mailbody):
+                logger.debug("Condition is matched.")
+                new_subject = item['prepend_tag'] + mail['Subject'] + item['append_tag']
+                mail.replace_header('Subject', new_subject)
+                break
+        new_mails.append(mail)            
+
+    return new_mails
 
 def ignore_mail(mails):
     logger.debug('function "ignore_mail" called')
