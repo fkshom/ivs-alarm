@@ -5,6 +5,9 @@ import smtplib
 import json
 import socket
 from .config import get_config
+from .processors import proc_nothing
+from .processors import change_to_address
+
 from contextlib import contextmanager
 
 @contextmanager
@@ -23,24 +26,24 @@ def pop3_retr_and_dele(pop3, num):
         print(err)
     finally:
         print("finalize")
-        
+
 def process_mail(content):
 
     new_mails = []
 
     # メールをParse
-    msg = email.message_from_string(content.decode('utf-8'))
-    msg_encoding = msg.header.decode_header(msg.get('Subject'))[0][1] or 'iso-2022-jp'
-    msg = email.message_from_string(content.decode(msg_encoding))
+    mail = email.message_from_string(content.decode('utf-8'))
+    mail_encoding = mail.header.decode_header(mail.get('Subject'))[0][1] or 'iso-2022-jp'
+    mail = email.message_from_string(content.decode(mail_encoding))
 
-    # メールのToを変更
-    if(msg.get('To')):
-        msg.replace_header('To', new_to_address)
-    else:
-        print('Warn: There is no To header. ')
+    procs = []
+    procs += proc_nothing
+    procs += change_to_address
+    mails_tmp = [mail]
+    for proc in procs:
+        mails_tmp = proc(mails_tmp)
 
-    del msg['Cc']
-
+    new_mails = mails_tmp
     return new_mails
 
 def main():

@@ -9,5 +9,15 @@
         "server": "pop3.example.com",
         "user": "username",
         "password": "pass"
+    },
+    "ignore": {
+        "1": [
+            "CES1234",
+            "CPU"
+        ],
+        "2", [
+            "CES2234",
+            "Memoy"
+        }
     }
 }
