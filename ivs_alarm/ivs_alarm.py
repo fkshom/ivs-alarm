@@ -83,6 +83,7 @@ def main():
 
                 for new_mail in new_mails:
                     logger.info('sendmail')
+                    logger.debug(new_mail)
                     # メールを送信
                     smtp.send_message(new_mail)
 
