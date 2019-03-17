@@ -8,6 +8,7 @@ from logging import basicConfig, getLogger, DEBUG
 from .config import get_config
 from .processors import proc_nothing
 from .processors import change_to_address
+from .processors import ignore_mail
 
 from contextlib import contextmanager
 
@@ -42,6 +43,8 @@ def process_mail(content):
     procs = []
     procs += proc_nothing
     procs += change_to_address
+    procs += ignore_mail
+
     mails_tmp = [mail]
     for proc in procs:
         mails_tmp = proc(mails_tmp)
